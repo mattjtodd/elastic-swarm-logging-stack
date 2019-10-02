@@ -68,9 +68,9 @@ production.
 * Grafana - http://localhost:3000
 * Application - http://localhost:8080/greeting?message=<your-message-to-pass-to-the-logs>
 
-A simple test for the log aggregation can be performed using curl / putty by requesting
-
 There is a datasource and simple dashboard pre-configured in Grafana to show how data can be visualised.
+
+A simple test for the log aggregation can be performed using curl / putty by requesting
 
 `curl "localhost:8080/greeting?message=hello"`
 
