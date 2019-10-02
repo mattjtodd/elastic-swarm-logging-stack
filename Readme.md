@@ -77,6 +77,7 @@ There is a datasource and simple dashboard pre-configured in Grafana to show how
 ## Teardown
 
 `docker stack rm application elk portainer`
+`docker volume rm elk_esdata elk_grafana-storage`
 
 
 
