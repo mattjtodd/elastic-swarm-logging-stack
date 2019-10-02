@@ -35,8 +35,6 @@ Build the Spring application:
 
 Pull all the images:
 
-Build the Spring application:
-
 ```docker-compose -f portainer.yml -f elastic.yml -f elk.yml pull```
 
 Deploy Portainer to get a nice UI over Docker
