@@ -77,6 +77,7 @@ A simple test for the log aggregation can be performed using curl / putty by req
 ## Teardown
 
 `docker stack rm application elk portainer`
+
 `docker volume rm elk_esdata elk_grafana-storage`
 
 
