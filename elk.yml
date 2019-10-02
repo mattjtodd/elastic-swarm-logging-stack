@@ -1,0 +1,87 @@
+version: "3.7"
+
+services:
+
+  metricbeat:
+    image: elastic/metricbeat:7.4.0
+    command: metricbeat -e -c /metricbeat/metricbeat.yml -system.hostfs=/hostfs
+    user:
+      root
+    environment:
+      - "ELASTICSEARCH_URL=elasticsearch:9200"
+      - "monitoring.enabled=true"
+      - "monitoring.elasticsearch.hosts=elasticsearch:9200"
+    volumes:
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    configs:
+      - source: metricbeat_conf_v3
+        target: /metricbeat/metricbeat.yml
+    deploy:
+      mode: global
+    hostname: "{{.Node.Hostname}}"
+    networks:
+      - elk
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.4.0
+    ports:
+      - 12201:12201
+    environment:
+      - "xpack.monitoring.collection.enabled=true"
+      - "monitoring.elasticsearch.hosts=elasticsearch:9200"
+      - "setup.template.settings.index.number_of_replicas=0"
+      - "setup.template.overwrite=true"
+    configs:
+      - source: logstash_pipelines_conf_v1
+        target: /usr/share/logstash/pipeline/pipelines.yml
+      - source: logstash_pipelines_conf_v1
+        target: /usr/share/logstash/config/pipelines.yml
+      - source: logstash_gelf_conf_v1
+        target: /etc/logstash/gelf.conf
+      - source: logstash_beats_conf_v1
+        target: /etc/logstash/beats.conf
+    networks:
+      - elk
+
+  grafana:
+    image: grafana/grafana:6.4.1
+    ports:
+      - 3000:3000
+    configs:
+      - source: datasources_conf_v1
+        target: /etc/grafana/provisioning/datasources/grafana-datasources.yaml
+      - source: dashboards_conf_v1
+        target: /etc/grafana/provisioning/dashboards/dashboard.yaml
+      - source: metricbeat_dashboards_conf_v1
+        target: /var/lib/grafana/dashboards/metricbeat.json
+    networks:
+      - elk
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+
+configs:
+  logstash_gelf_conf_v1:
+    file: ./logstash/gelf.conf
+  logstash_beats_conf_v1:
+    file: ./logstash/beats.conf
+  logstash_pipelines_conf_v1:
+    file: ./logstash/pipelines.yml
+  metricbeat_conf_v3:
+    file: ./metricbeat/metricbeat.yml
+  datasources_conf_v1:
+    file: ./grafana/provisioning/datasources/grafana-datasources.yaml
+  dashboards_conf_v1:
+    file: ./grafana/provisioning/dashboards/dashboards.yaml
+  metricbeat_dashboards_conf_v1:
+    file: ./grafana/provisioning/dashboards/dashboard.json
+
+networks:
+  elk:
+
+volumes:
+  esdata:
+  grafana-storage:

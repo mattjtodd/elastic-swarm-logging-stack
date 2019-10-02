@@ -1,0 +1,7 @@
+- pipeline.id: gelf-logging
+  path.config: "/etc/logstash/gelf.conf"
+  queue.type: persisted
+
+- pipeline.id: beats
+  path.config: "/etc/logstash/beats.conf"
+  queue.type: persisted

@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  elasticsearch:
+    image: elastic/elasticsearch:7.4.0
+    environment:
+      - "discovery.type=single-node"
+      - "xpack.monitoring.collection.enabled=true"
+    networks:
+      - elk
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: elastic/kibana:7.4.0
+    ports:
+      - "5601:5601"
+    environment:
+      - "ELASTICSEARCH_HOSTS=http://elasticsearch:9200"
+      - "xpack.monitoring.collection.enabled=true"
+    networks:
+      - elk
+
+  metricbeat-index-management:
+    image: elastic/metricbeat:7.4.0
+    command: setup --index-management
+          -E output.logstash.enabled=false
+          -E 'output.elasticsearch.hosts=["elasticsearch:9200"]'
+          -E setup.template.settings.index.number_of_replicas=0
+          -E setup.template.overwrite=true
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 10
+    networks:
+      - elk
+
+networks:
+  elk:
+
+volumes:
+  esdata:

@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+
+  spring-app:
+    image: spring-app
+    build: ./spring-app
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_MAIN_BANNER_MODE=off
+    # See - https://docs.docker.com/config/containers/logging/configure/
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "tcp://127.0.0.1:12201"
+        tag: "spring-app"
+        mode: "non-blocking"
+        max-buffer-size: "4m"
+    networks:
+      - application
+
+networks:
+  application:
