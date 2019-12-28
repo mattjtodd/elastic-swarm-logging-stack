@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   elasticsearch:
-    image: elastic/elasticsearch:7.4.0
+    image: elastic/elasticsearch:7.5.1
     environment:
       - "discovery.type=single-node"
       - "xpack.monitoring.collection.enabled=true"
@@ -10,11 +10,13 @@ services:
       - elk
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 127.0.0.1:9200:9200
 
   kibana:
-    image: elastic/kibana:7.4.0
+    image: elastic/kibana:7.5.1
     ports:
-      - "5601:5601"
+      - "127.0.0.1:5601:5601"
     environment:
       - "ELASTICSEARCH_HOSTS=http://elasticsearch:9200"
       - "xpack.monitoring.collection.enabled=true"
@@ -22,7 +24,7 @@ services:
       - elk
 
   metricbeat-index-management:
-    image: elastic/metricbeat:7.4.0
+    image: elastic/metricbeat:7.5.1
     command: setup --index-management
           -E output.logstash.enabled=false
           -E 'output.elasticsearch.hosts=["elasticsearch:9200"]'

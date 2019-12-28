@@ -3,7 +3,7 @@ version: "3.7"
 services:
 
   metricbeat:
-    image: elastic/metricbeat:7.4.0
+    image: elastic/metricbeat:7.5.1
     command: metricbeat -e -c /metricbeat/metricbeat.yml -system.hostfs=/hostfs
     user:
       root
@@ -17,7 +17,7 @@ services:
       - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
       - /var/run/docker.sock:/var/run/docker.sock
     configs:
-      - source: metricbeat_conf_v3
+      - source: metricbeat_conf_v1
         target: /metricbeat/metricbeat.yml
     deploy:
       mode: global
@@ -26,7 +26,7 @@ services:
       - elk
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:7.4.0
+    image: docker.elastic.co/logstash/logstash:7.5.1
     ports:
       - 12201:12201
     environment:
@@ -47,7 +47,7 @@ services:
       - elk
 
   grafana:
-    image: grafana/grafana:6.4.1
+    image: grafana/grafana
     ports:
       - 3000:3000
     configs:
@@ -70,7 +70,7 @@ configs:
     file: ./logstash/beats.conf
   logstash_pipelines_conf_v1:
     file: ./logstash/pipelines.yml
-  metricbeat_conf_v3:
+  metricbeat_conf_v1:
     file: ./metricbeat/metricbeat.yml
   datasources_conf_v1:
     file: ./grafana/provisioning/datasources/grafana-datasources.yaml
